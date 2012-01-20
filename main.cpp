@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
 
 	Window window;
 //	Timer timer;
-
 	return app.exec();
 }
 

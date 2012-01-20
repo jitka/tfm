@@ -1,11 +1,15 @@
 #include <QIcon>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <QDir>
+#include <QApplication>
+#include <iostream>
 #include "window.h"
 #include "tab.h"
 
 #define W_WIDTH 250
 #define W_HEIGHT 150
+
 
 Window::Window(){
 
@@ -19,6 +23,11 @@ Window::Window(){
 
 	QTabWidget *tabs = new QTabWidget(this);
 	vbox->addWidget(tabs);
+
+	QDir dir = QDir::home();
+	if (!dir.cd(".tfm"))
+		close();
+
 
 	Tab *tab1 = new Tab(this,"prvni");
 	tabs->addTab (tab1,"prvni");
