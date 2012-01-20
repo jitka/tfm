@@ -2,16 +2,14 @@
 #include "window.h"
 #include "timer.h"
 
-#define W_WIDTH 250
-#define W_HEIGHT 150
-
+// je potreba mit v qt takovy vzhled kdy jsou procenta progresbaru uprostred
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 
-//	Window window;
-	Timer timer;
+	Window window;
+//	Timer timer;
 
 	return app.exec();
 }

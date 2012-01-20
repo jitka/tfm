@@ -1,4 +1,3 @@
-#include <QProgressBar>
 #include <QApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -15,23 +14,34 @@ Timer::Timer(){
 	vbox->addStretch();
 
 	QHBoxLayout *hbox = new QHBoxLayout();
-//	hbox->setContentsMargins(0,0,0,0);
+	hbox->setContentsMargins(0,0,0,0);
 	vbox->addLayout(hbox);
 	
-	QProgressBar *prvni = new QProgressBar(this);
+	prvni = new QProgressBar(this);
+	prvni->setMinimum(0);
+	prvni->setMaximum(60);
+	prvni->setValue(0);
+	prvni->setFormat("pokus");
+	prvni->setTextVisible(true);
 	hbox->addWidget(prvni);
 
 	QProgressBar *druha = new QProgressBar(this);
 	hbox->addWidget(druha);
 
 	show();
+	startTimer(10);
 
 }
 
 void Timer::keyPressEvent(QKeyEvent *event){
+	event = 0;
+
 	//TODO neco jako this->close();
-	   if (event->key() == Qt::Key_Escape) {  
 		          qApp->quit();
-			     } 
+}
+
+void Timer::timerEvent(QTimerEvent *event){
+	event = 0;
+	prvni->setValue((prvni->value())+1);
 }
 
