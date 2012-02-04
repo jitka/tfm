@@ -21,6 +21,7 @@ Window::Window(){
 
 	tabs = new QTabWidget(this);
 	tabs->setTabsClosable(true);
+	tabs->setMovable(true);
 	connect(tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(onCloseTab(int)));
 	vbox->addWidget(tabs);
 
