@@ -7,12 +7,14 @@
 
 class Timer: public QWidget{
 	public:
-		Timer(QVector<part_massage> parts);
+		Timer(QVector<part_massage> &parts);
 	protected:
 		void keyPressEvent(QKeyEvent* event);
 		void timerEvent(QTimerEvent* event);
 	private:
 		QProgressBar* prvni;
+		QVector<part_massage> parts;
+		int current_part;
 };
 
 

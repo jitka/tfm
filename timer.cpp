@@ -2,49 +2,41 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>
+#include <QDebug>
 
 #include "timer.h"
-#define TIME 10 //zrychlene
+#define TIME 100 //zrychlene
 //#define TIME 1000 //realne
-Timer::Timer(QVector<part_massage> parts) {
+Timer::Timer(QVector<part_massage> &parts2) {
 
 	setWindowState(Qt::WindowFullScreen);
 	setStyleSheet("background-image: url(./background.jpg); background-position: center");
 
+	this->parts = parts2;
+
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->setContentsMargins(30,100,30,100); //TODO proc je v pravo vetsi dira?
 	vbox->addStretch();
-/*
-struct part_massage{
-	QString name;
-	int time;
-	int final_time;
-	bool chosen;
-	bool final_chosen;
-	QProgressBar* progresBar;
-*/
 	
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setContentsMargins(0,0,0,0);
+	hbox->setSpacing(0);
 	vbox->addLayout(hbox);
-	
-	prvni = new QProgressBar(this);
-	prvni->setMinimum(0);
-	prvni->setMaximum(60);
-	prvni->setValue(0);
-	prvni->setFormat("pokus");
-	prvni->setTextVisible(true);
-	hbox->addWidget(prvni);
-
-	QProgressBar *druha = new QProgressBar(this);
-	hbox->addWidget(druha);
 
 	for (int i = 0; i < parts.size(); i++){
-		if (!parts[i].final_chosen)
+		if ( parts[i].final_chosen == false)
 			continue;
-		parts[i]->progresBar = new QProgressBar(this);
+		parts[i].progresBar = new QProgressBar(this);
+		parts[i].progresBar->setMinimum(0);
+		parts[i].progresBar->setMaximum(parts[i].final_time*60);
+		parts[i].progresBar->setValue(0); //je potreba aby byl videt text
+		parts[i].progresBar->setFormat(parts[i].name);
+		parts[i].progresBar->setTextVisible(true);
+		parts[i].progresBar->setContentsMargins(0,0,0,0);
+		hbox->addWidget(parts[i].progresBar,parts[i].final_time);
 	}
-
+	
+	current_part=0;
 	show();
 	startTimer(TIME);
 
@@ -58,7 +50,19 @@ void Timer::keyPressEvent(QKeyEvent *event){
 }
 
 void Timer::timerEvent(QTimerEvent *event){
-	event = 0;
-	prvni->setValue((prvni->value())+1);
+	if (current_part >= parts.size())
+		return;
+
+	while ( parts[current_part].final_chosen == false ||
+			parts[current_part].progresBar->value() >= parts[current_part].final_time*60 ){
+
+		current_part++;
+		if (current_part >= parts.size())
+			return;
+	}
+
+	QProgressBar* pb = parts[current_part].progresBar;
+	pb->setValue(pb->value()+1);
+
 }
 

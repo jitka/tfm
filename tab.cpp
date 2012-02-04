@@ -13,6 +13,7 @@
 #include "tab.h"
 #include "timer.h"
 #include "json.h"
+#define MAX_TIME 999
 
 Tab::Tab(QWidget *parent, QString name):QWidget(parent){
 	
@@ -50,6 +51,7 @@ Tab::Tab(QWidget *parent, QString name):QWidget(parent){
 			hbox->addWidget(parts[i].checkBox);
 		
 			parts[i].spinBox = new QSpinBox(this);
+		        parts[i].spinBox->setMaximum(MAX_TIME);	
 		        parts[i].spinBox->setValue(parts[i].time);	
 			hbox->addWidget(parts[i].spinBox);
 
@@ -79,6 +81,8 @@ void Tab::onOk(){
 			parts[i].final_chosen = true;
 		else
 			parts[i].final_chosen = false;
+		parts[i].final_time = parts[i].spinBox->value();
+
 	}
 	Timer *timer = new Timer(parts);
 }
@@ -109,6 +113,9 @@ int Tab::parse(QString name){
 			if ( (*m).find("time") == (*m).end())
 				goto AU;
 			if ( (*m)["time"].typ != INT )
+				goto AU;
+			int time = (*m)["time"].hodnota.Int;
+			if ( time <=0 || time >= MAX_TIME)
 				goto AU;
 			p.time = (*m)["time"].hodnota.Int;
 
