@@ -1,6 +1,6 @@
 #include <QApplication>
 #include "window.h"
-#include "timer.h"
+//#include "timer.h"
 
 // je potreba mit v qt takovy vzhled kdy jsou procenta progresbaru uprostred
 

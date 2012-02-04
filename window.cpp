@@ -1,14 +1,13 @@
+#include <iostream>
 #include <QIcon>
-#include <QTabWidget>
 #include <QVBoxLayout>
 #include <QDir>
-#include <QApplication>
-#include <iostream>
+#include <QMessageBox>
 #include "window.h"
 #include "tab.h"
 
-#define W_WIDTH 250
-#define W_HEIGHT 150
+#define W_WIDTH 500
+#define W_HEIGHT 400
 
 
 Window::Window(){
@@ -16,26 +15,35 @@ Window::Window(){
 	resize(W_WIDTH, W_HEIGHT);
 	setWindowTitle("Timer for massage");
 	setWindowIcon(QIcon("icon.jpg"));
-	setToolTip("window");
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->setContentsMargins(0,0,0,0);
 
-	QTabWidget *tabs = new QTabWidget(this);
+	tabs = new QTabWidget(this);
+	tabs->setTabsClosable(true);
+	connect(tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(onCloseTab(int)));
 	vbox->addWidget(tabs);
 
 	QDir dir = QDir::home();
-	if (!dir.cd(".tfm"))
-		close();
+	if (!dir.cd(".tfm")){
+		QMessageBox::critical (this,"Error", "Setting not found");
+		show();
 
+	} else {
 
-	Tab *tab1 = new Tab(this,"prvni");
-	tabs->addTab (tab1,"prvni");
+		QFileInfoList list = dir.entryInfoList();
 
-	Tab *tab2 = new Tab(this,"druhy");
-	tabs->addTab (tab2,"druhy");
+		for (int i = 0; i < list.size(); ++i) {
+			if (list[i].isFile()){
+				Tab *tab = new Tab(this,list[i].fileName());
+				tabs->addTab (tab,list[i].fileName());
+			}
+		} 
+		show();
 
-	show();
+	}
+}
 
-
+void Window::onCloseTab(int index){
+	tabs->removeTab(index);
 }
