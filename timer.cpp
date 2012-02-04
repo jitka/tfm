@@ -42,6 +42,7 @@ struct part_massage{
 	for (int i = 0; i < parts.size(); i++){
 		if (!parts[i].final_chosen)
 			continue;
+		parts[i]->progresBar = new QProgressBar(this);
 	}
 
 	show();
