@@ -10,6 +10,7 @@ class Window: public QWidget{
 
 	private slots:
 		void onCloseTab(int index);
+
 	private:
 		QTabWidget *tabs;
 

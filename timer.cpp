@@ -4,15 +4,26 @@
 #include <QKeyEvent>
 
 #include "timer.h"
+#define TIME 10 //zrychlene
+//#define TIME 1000 //realne
+Timer::Timer(QVector<part_massage> parts) {
 
-Timer::Timer(){
 	setWindowState(Qt::WindowFullScreen);
 	setStyleSheet("background-image: url(./background.jpg); background-position: center");
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->setContentsMargins(30,100,30,100); //TODO proc je v pravo vetsi dira?
 	vbox->addStretch();
-
+/*
+struct part_massage{
+	QString name;
+	int time;
+	int final_time;
+	bool chosen;
+	bool final_chosen;
+	QProgressBar* progresBar;
+*/
+	
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setContentsMargins(0,0,0,0);
 	vbox->addLayout(hbox);
@@ -28,8 +39,13 @@ Timer::Timer(){
 	QProgressBar *druha = new QProgressBar(this);
 	hbox->addWidget(druha);
 
+	for (int i = 0; i < parts.size(); i++){
+		if (!parts[i].final_chosen)
+			continue;
+	}
+
 	show();
-	startTimer(10);
+	startTimer(TIME);
 
 }
 

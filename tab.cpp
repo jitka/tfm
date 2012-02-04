@@ -5,18 +5,61 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QTextStream>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QDebug>
+#include <QButtonGroup>
 #include <vector>
 #include "tab.h"
+#include "timer.h"
 #include "json.h"
 
 Tab::Tab(QWidget *parent, QString name):QWidget(parent){
 	
-	if (parse(name)) {
 	setToolTip(name);
 
-	QPushButton *quit = new QPushButton("Nemackat", this);
-   	quit->setGeometry(50, 40, 75, 30);
+	if (parse(name)) {
+
+		QVBoxLayout* vbox = new QVBoxLayout(this);
+		vbox->setContentsMargins(30,30,30,30); 
+
+		
+		QHBoxLayout* hbox = new QHBoxLayout();
+		hbox->setContentsMargins(0,0,0,0);
+
+		QLabel* label = new QLabel("Celkovy cas:", this);
+		hbox->addWidget(label);
+		int sum = 0;
+		for (int i = 0; i < parts.size(); i++)
+			sum += parts[i].time;
+
+		QSpinBox* totalTimeSpinBox = new QSpinBox(this);
+		totalTimeSpinBox->setValue(sum);	
+		totalTimeSpinBox->setSuffix(" min");	
+		hbox->addWidget(totalTimeSpinBox);
+
+		vbox->addLayout(hbox);
+
+		for (int i = 0; i < parts.size(); i++){
+			QHBoxLayout *hbox = new QHBoxLayout();
+			hbox->setContentsMargins(0,0,0,0);
+			
+			parts[i].checkBox = new QCheckBox (parts[i].name,this);
+			if ( parts[i].chosen )
+				parts[i].checkBox->setCheckState(Qt::Checked);
+			hbox->addWidget(parts[i].checkBox);
+		
+			parts[i].spinBox = new QSpinBox(this);
+		        parts[i].spinBox->setValue(parts[i].time);	
+			hbox->addWidget(parts[i].spinBox);
+
+			vbox->addLayout(hbox);
+
+		}
+
+		QPushButton *ok = new QPushButton("zacit masirovat", this);
+		connect(ok, SIGNAL(clicked()), this, SLOT(onOk()));
+		vbox->addWidget(ok);
 
 	} else {
 		//nepovedlo se nacit konfigurak
@@ -28,6 +71,16 @@ Tab::Tab(QWidget *parent, QString name):QWidget(parent){
 	}
 
 
+}
+
+void Tab::onOk(){
+	for (int i = 0; i < parts.size(); i++){
+		if (parts[i].checkBox->checkState() == Qt::Checked)
+			parts[i].final_chosen = true;
+		else
+			parts[i].final_chosen = false;
+	}
+	Timer *timer = new Timer(parts);
 }
 
 int Tab::parse(QString name){
@@ -63,10 +116,10 @@ int Tab::parse(QString name){
 				goto AU;
 			switch ( (*m)["default"].typ ){
 			case MY_TRUE:
-				p.common = true;
+				p.chosen = true;
 				break;
 			case MY_FALSE:
-				p.common = false;
+				p.chosen = false;
 				break;
 			default:
 				goto AU;
@@ -74,7 +127,7 @@ int Tab::parse(QString name){
 			}
 
 			parts.append(p);
-			qDebug() <<  p.name << p.time << p.common;
+//			qDebug() <<  p.name << p.time << p.chosen;
 		}	
 //		smaz(p);
 		return true;

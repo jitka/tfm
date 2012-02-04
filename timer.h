@@ -3,13 +3,14 @@
 #include <QWidget>
 #include <QProgressBar>
 #include <QTimer>
+#include "part_massage.h"
 
 class Timer: public QWidget{
 	public:
-		Timer();
+		Timer(QVector<part_massage> parts);
 	protected:
-		void keyPressEvent(QKeyEvent * event);
-		void timerEvent(QTimerEvent *event);
+		void keyPressEvent(QKeyEvent* event);
+		void timerEvent(QTimerEvent* event);
 	private:
 		QProgressBar* prvni;
 };
