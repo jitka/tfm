@@ -16,11 +16,11 @@
 #include "json.h"
 #define MAX_TIME 999
 
-Tab::Tab(QWidget *parent, QString name):QWidget(parent){
+Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 	
 	setToolTip(name);
 
-	if (parse(name)) {
+	if (parse(path)) {
 
 		QVBoxLayout* vbox = new QVBoxLayout(this);
 		vbox->setContentsMargins(30,30,30,30); 
@@ -86,18 +86,14 @@ void Tab::onOk(){
 	Timer *timer = new Timer(parts);
 }
 
-int Tab::parse(QString name){
+int Tab::parse(QString path){
 
-	QString n = "/home/jitka/.tfm/"+name;
-	QFile file(n);
+	QFile file(path);
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 		return false;
+	QString in = QTextStream(&file).readAll();
 
-	QTextStream in(&file);
-	
-	QString in2 = in.readAll();
-
-	Json config(in2);
+	Json config(in);
 
 	if (config.type != VECTOR)
 		return false;

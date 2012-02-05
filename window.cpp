@@ -36,7 +36,7 @@ Window::Window(){
 
 		for (int i = 0; i < list.size(); ++i) {
 			if (list[i].isFile()){
-				Tab *tab = new Tab(this,list[i].fileName());
+				Tab *tab = new Tab(this,list[i].fileName(),list[i].canonicalFilePath());
 				tabs->addTab (tab,list[i].fileName());
 			}
 		} 

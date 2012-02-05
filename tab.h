@@ -7,7 +7,7 @@
 class Tab: public QWidget{
 	Q_OBJECT
 	public:
-		Tab(QWidget* parent, QString name);
+		Tab(QWidget* parent, QString name, QString path);
 	
 	private slots:
 		void onOk();
