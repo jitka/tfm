@@ -1,6 +1,6 @@
 #include <QChar>
 #include <QDebug>
-#include "json2.h"
+#include "json.h"
 
 void skipWhiteSpace(QString &in){
 	while ( !in.isEmpty() && in[0].isSpace())

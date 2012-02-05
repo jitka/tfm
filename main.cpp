@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QFile>
 #include "window.h"
-#include "json2.h"
+//#include "json.h"
 //#include "timer.h"
 
 // je potreba mit v qt takovy vzhled kdy jsou procenta progresbaru uprostred

@@ -13,7 +13,7 @@
 #include <vector>
 #include "tab.h"
 #include "timer.h"
-#include "json2.h"
+#include "json.h"
 #define MAX_TIME 999
 
 Tab::Tab(QWidget *parent, QString name):QWidget(parent){
