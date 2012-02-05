@@ -3,17 +3,21 @@
 #include <QWidget>
 #include <QProgressBar>
 #include <QTimer>
-#include "part_massage.h"
+
+struct pbInfo{
+	QString name;
+	int time;
+};
+
 
 class Timer: public QWidget{
 	public:
-		Timer(QVector<part_massage> &parts);
+		Timer(QVector<pbInfo> &v);
 	protected:
 		void keyPressEvent(QKeyEvent* event);
 		void timerEvent(QTimerEvent* event);
 	private:
-		QProgressBar* prvni;
-		QVector<part_massage> parts;
+		QVector<QProgressBar*> progressBars;
 		int current_part;
 };
 

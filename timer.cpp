@@ -2,17 +2,18 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>
+#include <QVector>
 #include <QDebug>
-
 #include "timer.h"
-#define TIME 100 //zrychlene
+#define TIME 10 //zrychlene
 //#define TIME 1000 //realne
-Timer::Timer(QVector<part_massage> &parts2) {
+
+
+
+Timer::Timer(QVector<pbInfo> &v){
 
 	setWindowState(Qt::WindowFullScreen);
 	setStyleSheet("background-image: url(./background.jpg); background-position: center");
-
-	this->parts = parts2;
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->setContentsMargins(30,100,30,100); 
@@ -23,17 +24,16 @@ Timer::Timer(QVector<part_massage> &parts2) {
 	hbox->setSpacing(0);
 	vbox->addLayout(hbox);
 
-	for (int i = 0; i < parts.size(); i++){
-		if ( parts[i].final_chosen == false)
-			continue;
-		parts[i].progresBar = new QProgressBar(this);
-		parts[i].progresBar->setMinimum(0);
-		parts[i].progresBar->setMaximum(parts[i].final_time*60);
-		parts[i].progresBar->setValue(0); //je potreba aby byl videt text
-		parts[i].progresBar->setFormat(parts[i].name);
-		parts[i].progresBar->setTextVisible(true);
-		parts[i].progresBar->setContentsMargins(0,0,0,0);
-		hbox->addWidget(parts[i].progresBar,parts[i].final_time);
+	for (int i = 0; i < v.size(); i++){
+		QProgressBar *pb = new QProgressBar(this);
+		pb->setMinimum(0);
+		pb->setMaximum(v[i].time*60);
+		pb->setValue(0); //je potreba aby byl videt text
+		pb->setFormat(v[i].name);
+		pb->setTextVisible(true);
+		pb->setContentsMargins(0,0,0,0);
+		hbox->addWidget(pb,v[i].time);
+		progressBars.append(pb);
 	}
 	
 	current_part=0;
@@ -50,18 +50,16 @@ void Timer::keyPressEvent(QKeyEvent *event){
 }
 
 void Timer::timerEvent(QTimerEvent *event){
-	if (current_part >= parts.size())
+	if (current_part >= progressBars.size())
 		return;
 
-	while ( parts[current_part].final_chosen == false ||
-			parts[current_part].progresBar->value() >= parts[current_part].final_time*60 ){
-
+	if (progressBars[current_part]->value() >= progressBars[current_part]->maximum() ){
 		current_part++;
-		if (current_part >= parts.size())
+		if (current_part >= progressBars.size())
 			return;
 	}
-
-	QProgressBar* pb = parts[current_part].progresBar;
+	
+	QProgressBar* pb = progressBars[current_part];
 	pb->setValue(pb->value()+1);
 
 }

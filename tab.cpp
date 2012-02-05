@@ -75,15 +75,21 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 }
 
 void Tab::onOk(){
+	QVector<pbInfo> v;
 	for (int i = 0; i < parts.size(); i++){
-		if (parts[i].checkBox->checkState() == Qt::Checked)
+		if (parts[i].checkBox->checkState() == Qt::Checked){
 			parts[i].final_chosen = true;
-		else
+			pbInfo pbi;
+			pbi.name = parts[i].name;
+			pbi.time = parts[i].spinBox->value();
+			v.append(pbi);
+
+		} else
 			parts[i].final_chosen = false;
 		parts[i].final_time = parts[i].spinBox->value();
 
 	}
-	Timer *timer = new Timer(parts);
+	Timer *timer = new Timer(v);
 }
 
 int Tab::parse(QString path){
