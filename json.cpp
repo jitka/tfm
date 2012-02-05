@@ -1,42 +1,48 @@
-#include "json.h"
+#include <QChar>
+#include <QDebug>
+#include "json2.h"
 
-int parsujInt(std::istream &vstup){
-	int cislo = 0;
-	int znamenko = 1;
-	char c;
-	vstup.get(c);
-	if (c == '-') {
-		znamenko = -1;
-		vstup.get(c);
-	}	
-	cislo = c-'0';
-	while (vstup.get(c)){
-		switch (c){
-		case '0':	case '1':
-		case '2':	case '3':	case '4':
-		case '5':	case '6':	case '7':	
-		case '8':	case '9':
-			cislo = cislo*10 + (int) (c-'0');
-			break;
-		default:
-			vstup.unget();
-			return cislo*znamenko;
-		}
-
-	}
+void skipWhiteSpace(QString &in){
+	while ( !in.isEmpty() && in[0].isSpace())
+		in.remove(0,1);
 }
 
-std::string parsujString(std::istream &vstup){
-	char c;
-	std::string s = ""; //pridavat pomoci +
-	while (vstup.get(c)){
-		if (c == '"'){
-	//		std::cout << s << "?\n";
-			return std::string(s);
+bool parseInt(QString &in, int &number) {
+	number = 0;
+	int sgn = 1;
+	if (in[0] == '-'){
+		sgn = -1;
+		in.remove(0,1);
+	}
+
+	while ( !in.isEmpty() ){
+
+		if (in[0].isDigit()){
+			number = number*10 + in[0].digitValue();
+			in.remove(0,1);
+		} else {
+			number *= sgn;
+			return true;
 		}
-		if (c == '\\'){
-			vstup.get(c);
-			switch (c){
+	}
+	return true;
+}
+
+bool parseString(QString &in, QString &s){
+	s = "";
+	in.remove(0,1); // '"'
+
+	while (true) {
+		if ( in.isEmpty() ){
+			return false;
+		} else if ( in[0] == '"' ){
+			in.remove(0,1);
+			return true;
+		} else if ( in[0] == '\\'){
+			in.remove(0,1);
+			if ( in.isEmpty() )
+				return false;
+			switch ( in[0].toAscii() ){
 			case '"': s += "\""; break;
 			case '/': s += "/"; break;
 			case 'b': s += "\b"; break;
@@ -44,236 +50,339 @@ std::string parsujString(std::istream &vstup){
 			case 'n': s += "\n"; break;
 			case 'r': s += "\r"; break;
 			case 't': s += "\t"; break;
-			case 'u': std::cerr << "ERR neumim\n"; break;
-			default: s += "\\"; s += c; break;
+			//case 'u': std::cerr << "ERR neumim\n"; break;
+			default: s += "\\"; s += in[0]; break;
 			} 
+			in.remove(0,1);
 		} else {
-			s += c;
+			s += in[0];
+			in.remove(0,1);
 		}
+
 	}
 }
 
-void nemezera(std::istream &vstup, char &c){
-		do { vstup.get(c); } //mezery do zacatku vcente
-		while (isspace(c));
-}
+bool parseVector(QString &in, QVector<Json> &v){
 
-std::vector<polozka>* parsujVector(std::istream &vstup){
-	std::vector<polozka> *v = new std::vector<polozka>();
-	char c;
+	in.remove(0,1); // '['
+
+	skipWhiteSpace(in);
+	if ( in[0] == ']' ){
+		in.remove(0,1);
+		return true;
+	}
+
 	while (true){
-		nemezera(vstup,c);
+		skipWhiteSpace(in);
 
-		if (c == ']'){
-			return v;
+		Json p(in);
+		if (p.type == ERROR)
+			return false;
+
+		skipWhiteSpace(in);
+
+		//co je po skonceni jedne polozky
+		if ( in.isEmpty() ){
+			return false;
+		} else if ( in[0] == ']' ){
+			in.remove(0,1);
+			v.push_back(p);
+			return true;
+		} else if ( in[0] == ',' ){
+			in.remove(0,1);
+			v.push_back(p);
+		} else {
+			return false;
 		}
-	
-		vstup.unget();
-		polozka p = parsuj(vstup);
-		v->push_back(p);
-
-		nemezera(vstup,c);
-		
-		if (c == ']')
-			return v;
-	}
+	}	
 }
 
-std::map<std::string,polozka>* parsujMap(std::istream &vstup){
-	std::map<std::string,polozka> *m = new std::map<std::string,polozka>();
-	char c;
+
+bool parseMap(QString &in, QMap<QString,Json> &m){
+
+	in.remove(0,1); // '{'
+
+	skipWhiteSpace(in);
+	if ( in[0] == '}' ){
+		in.remove(0,1);
+		return true;
+	}
+
 	while (true){
-		nemezera(vstup,c);
 
-		if (c == '}')
-			return m;
-	
-		std::string str =  parsujString(vstup);
+		skipWhiteSpace(in);
 
-		nemezera(vstup,c);
-		nemezera(vstup,c);
+		// " neco "
+		QString str;
+		if (!parseString(in,str))
+			return false;
 
-		vstup.unget();
-		polozka p = parsuj(vstup);
+		skipWhiteSpace(in);
 
-		(*m)[str] = p;
+		// :
+		if ( in.isEmpty() ){
+			return false;
+		} else if ( in[0] == ':' ){
+			in.remove(0,1);
+		} else {
+			return false;
+		}
 
-		nemezera(vstup,c);
-		
-		if (c == '}')
-			return m;
-	}
+		skipWhiteSpace(in);
+
+		// polozka
+		Json p(in);
+		if (p.type == ERROR)
+			return false;
+
+		skipWhiteSpace(in);
+
+		// ,
+		if ( in.isEmpty() ){
+			return false;
+		} else if ( in[0] == '}' ){
+			in.remove(0,1);
+			m.insert(str,p);
+			return true;
+		} else if ( in[0] == ',' ){
+			in.remove(0,1);
+			m.insert(str,p);
+		} else {
+			return false;
+		}
+
+	}	
 
 }
 
+bool readRest(QString &in, const QString &rest) {
+	QString r = rest;
+	while (true) {
+		if ( r.isEmpty() ){
+			return true;
+		} else if ( in.isEmpty() ){
+			return false;
+		} else if ( in[0] != r[0] ){
+			return false;
+		} else {
+			in.remove(0,1);
+			r.remove(0,1);
+		}
 
-void docti(std::istream &vstup, std::string str){
-	char c;
-	for (int i = 0; i < str.length(); i++){
-		vstup.get(c);
 	}
 }
 
+Json::Json(){
+	type = MY_NULL;
+}
 
-polozka parsuj(std::istream &vstup){
-	polozka p;
-	char c;
-
-	nemezera(vstup,c);
+Json::Json(QString &in){
 	
-	switch (c){
+	skipWhiteSpace(in);
+	
+	if ( in.isEmpty() ){
+		type = ERROR;
+		return;
+	}
+	
+	switch (in[0].toAscii()){
 	case '-': 	case '0':	case '1':
 	case '2':	case '3':	case '4':
 	case '5':	case '6':	case '7':	
 	case '8':	case '9':
-		//int x = parsujInt(vstup, c) << "\n";
-		vstup.unget();
-		p.typ = INT;
-		p.hodnota.Int = parsujInt(vstup);
-		break;
+		{
+			int number;
+				if ( parseInt(in, number) ){
+					type = INT;
+					value.number = number;
+				} else {
+					type = ERROR;
+				}
+			break;
+		}
 	case '[':
-		p.typ = VECTOR;
-		p.hodnota.Vector = parsujVector(vstup);
-		break;
-	case '{':	
-		p.typ = MAP;
-		p.hodnota.Map = parsujMap(vstup);
-		break;
+		{
+			QVector<Json>* v = new QVector<Json>();
+				if ( parseVector(in, *v) ){
+					type = VECTOR;
+					value.vector = v;
+				} else {
+					type = ERROR;
+				}
+			break;
+		}
+	case '{':
+		{
+			QMap<QString,Json>* m = new QMap<QString,Json>();
+				if ( parseMap(in, *m) ){
+					type = MAP;
+					value.map = m;
+				} else {
+					type = ERROR;
+				}
+			break;
+		}
+
 	case '"':	
-		p.typ = STRING;
-		p.hodnota.String = new std::string(parsujString(vstup));
-		break;
+		{
+			QString* str = new QString();
+				if ( parseString(in, *str) ){
+					type = STRING;
+					value.string = str;
+				} else {
+					type = ERROR;
+				}
+			break;
+		}
 	case 't':
-		docti(vstup,"rue");
-		p.typ = MY_TRUE;
+		if ( readRest(in,"true") ){
+			type = MY_TRUE;
+		} else {
+			type = ERROR;
+		}
 		break;
 	case 'f':
-		docti(vstup,"alse");
-		p.typ = MY_FALSE;
+		if ( readRest(in,"false") ){
+			type = MY_FALSE;
+		} else {
+			type = ERROR;
+		}
 		break;
 	case 'n':
-		docti(vstup,"ull");
-		p.typ = MY_NULL;
+		if ( readRest(in,"null") ){
+			type = MY_NULL;
+		} else {
+			type = ERROR;
+		}
 		break;
 	default:
-		std::cerr << c << " hui\n";
+		type = ERROR;
+		break;
 	}
-	return p;
 }
 
-//--------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////
 
-void vypisString(std::ostream &vystup, std::string str){
-	vystup << "\"";
+Json::Json(const Json &json){
+	type = json.type;
+	switch (json.type) {
+		case INT:
+			value.number = json.value.number;
+			break;
+		case STRING:
+			value.string = new QString(*json.value.string);
+			break;
+		case MAP:
+			value.map = new QMap<QString,Json>(*json.value.map);
+			break;
+		case VECTOR:
+			value.vector = new QVector<Json>(*json.value.vector);
+			break;
+		default:
+			break;
+	}
+	
+}
+
+Json::~Json(){
+
+	switch (type) {
+		case STRING:
+			delete value.string;
+			break;
+		case MAP:
+			delete value.map;
+			break;
+		case VECTOR:
+			delete value.vector;
+			break;
+		default:
+			break;
+	}
+	
+
+}
+
+////////////////////////////////////////////////////////////////////
+
+
+void writeString(QTextStream &out, const QString &str){
+//	qDebug() << str;
+	out << "\"";
 	for (int i = 0; i < str.length(); i++){
-		switch  (str[i]){
-		case '\"': vystup << "\\\""; break;
-		case '/': vystup << "\\/"; break;
-		case '\b': vystup << "\\b"; break;
-		case '\f': vystup << "\\f"; break;
-		case '\n': vystup << "\\n"; break;
-		case '\r': vystup << "\\r"; break;
-		case '\t': vystup << "\\t"; break;
-		default: vystup << str[i]; break;
+		switch  (str[i].toAscii()){
+		case '\"': out << "\\\""; break;
+		case '/': out << "\\/"; break;
+		case '\b': out << "\\b"; break;
+		case '\f': out << "\\f"; break;
+		case '\n': out << "\\n"; break;
+		case '\r': out << "\\r"; break;
+		case '\t': out << "\\t"; break;
+		default: out << str[i]; break;
 		} 
 	}
-	vystup << "\"";
+	out << "\"";
 }
 
-void vypisVector(std::ostream &vystup, std::vector<polozka> *vector){
-	vystup << "[ ";
-	bool zacatek = true;
-	for (int i = 0; i < vector->size(); i++){
-		if (!zacatek)
-			vystup << ", ";
-		zacatek = false;
-		vypis(vystup,(*vector)[i]);
+void writeVector(QTextStream &out, const QVector<Json> &vector){
+	out << "[ ";
+	bool begin = true;
+	for (int i = 0; i < vector.size(); i++){
+		if (!begin)
+			out << ", ";
+		begin = false;
+		vector[i].write(out);
 
 	}
-	vystup << " ]";
+	out << " ]";
 }
 
-void vypisDvojice(std::ostream &vystup, std::string str, polozka polozka){
-	vypisString(vystup,str);
-	vystup << " : ";
-	vypis(vystup,polozka);
-}
 
-void vypisMap(std::ostream &vystup, std::map<std::string,polozka> *map){
-	vystup << "{ ";
-	std::map<std::string,polozka>::iterator it;
+void writeMap(QTextStream &out, const QMap<QString,Json> &map){
+	out << "{ ";
+	QMapIterator<QString,Json> it(map);
 
-	bool zacatek = true;
-	for (it = map->begin(); it != map->end(); ++it){
-		if (!zacatek)
-			vystup << ", ";
-		zacatek = false;
-		vypisDvojice(vystup,(*it).first,(*it).second);
+	bool begin = true;
+	while (it.hasNext()) {
+		it.next();
+		if (!begin)
+			out << ", ";
+		begin = false;
+
+		writeString(out,it.key());
+		out << " : ";
+		it.value().write(out);
 	}
-	vystup << " }";
+	out << " }";
 
 }
 
-void vypis(std::ostream &vystup, polozka p){
-	switch (p.typ) {
+void Json::write(QTextStream &out) const{
+	switch (type) {
 	case INT:
-		vystup << p.hodnota.Int;
+		out << value.number;
 		break;
 	case STRING:
-		vypisString(vystup, *p.hodnota.String);
+		writeString(out, *value.string);
 		break;
 	case MAP:
-		vypisMap(vystup, p.hodnota.Map);
+		writeMap(out, *value.map);
 		break;
 	case VECTOR:
-		vypisVector(vystup, p.hodnota.Vector);
+		writeVector(out, *value.vector);
 		break;
 	case MY_TRUE: 
-		vystup << "true";
+		out << "true";
 		break;
 	case MY_FALSE:
-		vystup << "false";
+		out << "false";
 		break;
 	case MY_NULL:
-		vystup << "null";
+		out << "null";
 		break;
 	case ERROR:
-		vystup << "null";
+		out << "error";
 		break;
 	}
 }
-
-//-----------------------------------------------
-
-void smaz(polozka p){
-	//TODO testovat
-	//ostatni se mazou s koncem polozky
-	switch (p.typ) {
-	case STRING:
-		delete p.hodnota.String;
-		break;
-	case MAP:
-		{
-			std::map<std::string,polozka> *map = p.hodnota.Map;
-			std::map<std::string,polozka>::iterator it;
-			for (it = map->begin(); it != map->end(); ++it){
-				smaz((*it).second);
-			}
-			delete p.hodnota.Map;
-			break;
-		}
-	case VECTOR:
-		{
-			std::vector<polozka> *vector = p.hodnota.Vector;
-			std::vector<polozka>::iterator it;
-			for (it = vector->begin(); it != vector->end(); ++it){
-				smaz(*it);
-			}
-			delete p.hodnota.Map;
-			break;
-		}
-
-	}
-}
-
 
