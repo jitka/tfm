@@ -22,13 +22,8 @@ class Json {
 		Json(const Json &json);
 		~Json();
 
-
 		void write(QTextStream &out) const;
 
 };
-
-//void smaz(polozka p); //pokud je pole nebo objekt smaze syny
-//void odeber(polozka &kam);
-//void odeber(polozka &kam, std::string str);
 
 #endif

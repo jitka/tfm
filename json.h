@@ -1,5 +1,5 @@
-#ifndef JSON_H_
-#define JSON_H_
+#ifndef JSON1_H_
+#define JSON1_H_
 
 #include <iostream>
 #include <fstream>

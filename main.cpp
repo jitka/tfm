@@ -11,7 +11,10 @@
 
 int main(int argc, char *argv[])
 {
-	QFile file("json.txt");
+	//QFile file("json.txt");
+/*	QFile file("/home/jitka/.tfm/aeiou");
+	//QFile file("/home/jitka/.tfm/druhe");
+//	QFile file("vstup.txt");
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 		return 1;
 
@@ -27,16 +30,16 @@ int main(int argc, char *argv[])
 	QTextStream out(&file2);
 
 	p.write(out);
-
+*/
 //	QString str;
 //	in >> str;
 //	qDebug() << str;
 
-//	QApplication app(argc, argv);
+	QApplication app(argc, argv);
 
-//	Window window;
+	Window window;
 //	Timer timer;
-//	return app.exec();
+	return app.exec();
 }
 
 

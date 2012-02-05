@@ -266,6 +266,9 @@ Json::Json(QString &in){
 Json::Json(const Json &json){
 	type = json.type;
 	switch (json.type) {
+		case INT:
+			value.number = json.value.number;
+			break;
 		case STRING:
 			value.string = new QString(*json.value.string);
 			break;

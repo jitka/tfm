@@ -1,4 +1,5 @@
 #include <QPushButton>
+#include <QFile>
 #include <fstream>
 #include <iostream>
 #include <QString>
@@ -12,7 +13,7 @@
 #include <vector>
 #include "tab.h"
 #include "timer.h"
-#include "json.h"
+#include "json2.h"
 #define MAX_TIME 999
 
 Tab::Tab(QWidget *parent, QString name):QWidget(parent){
@@ -68,8 +69,6 @@ Tab::Tab(QWidget *parent, QString name):QWidget(parent){
 		setToolTip(name);
 		//QLabel *label = new QLabel("Nepodarilo se naparsovat konfigurak.", this);
 		new QLabel("Nepodarilo se naparsovat konfigurak.", this);
-		QPushButton *quit = new QPushButton("Quit", this);
-		quit->setGeometry(50, 40, 75, 30);
 	}
 
 
@@ -89,39 +88,49 @@ void Tab::onOk(){
 
 int Tab::parse(QString name){
 
-	std::string n = "/home/jitka/.tfm/"+name.toStdString();
-	//std::cout << n << "\n";
-	std::ifstream input(n.c_str());
-	polozka p = parsuj(input);		
+	QString n = "/home/jitka/.tfm/"+name;
+	QFile file(n);
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return false;
 
-	if (p.typ == VECTOR){
-		std::vector<polozka> *v = p.hodnota.Vector;
-		for (int i = 0; i < (int) v->size(); i++){
-			if ((*v)[i].typ != MAP)
-				goto AU;
-			std::map<std::string,polozka> *m = (*v)[i].hodnota.Map;
+	QTextStream in(&file);
+	
+	QString in2 = in.readAll();
 
+	Json config(in2);
+
+	if (config.type != VECTOR)
+		return false;
+	for (int i = 0; i < (int) config.value.vector->size(); i++){
+
+			Json v = (*config.value.vector)[i];
+			if (v.type != MAP)
+				return false;
+
+			QMap<QString,Json> m = *v.value.map;
 			part_massage p;
 
-			if ( (*m).find("name") == (*m).end())
-				goto AU;
-			if ( (*m)["name"].typ != STRING )
-				goto AU;
-			p.name = QString((*((*m)["name"].hodnota.String)).c_str());
+			//name
+			if ( m.find("name") == m.end())
+				return false;
+			if ( m["name"].type != STRING )
+				return false;
+			p.name = *m["name"].value.string;
 
-
-			if ( (*m).find("time") == (*m).end())
-				goto AU;
-			if ( (*m)["time"].typ != INT )
-				goto AU;
-			int time = (*m)["time"].hodnota.Int;
+			//time
+			if ( m.find("time") == m.end())
+				return false;
+			if ( m["time"].type != INT )
+				return false;
+			int time = m["time"].value.number;
 			if ( time <=0 || time >= MAX_TIME)
-				goto AU;
-			p.time = (*m)["time"].hodnota.Int;
+				return false;
+			p.time = time;
 
-			if ( (*m).find("default") == (*m).end())
-				goto AU;
-			switch ( (*m)["default"].typ ){
+			//chosen
+			if ( m.find("default") == m.end())
+				return false;
+			switch ( m["default"].type ){
 			case MY_TRUE:
 				p.chosen = true;
 				break;
@@ -129,18 +138,15 @@ int Tab::parse(QString name){
 				p.chosen = false;
 				break;
 			default:
-				goto AU;
+				return false;
 				break;
 			}
 
 			parts.append(p);
-//			qDebug() <<  p.name << p.time << p.chosen;
-		}	
-//		smaz(p);
-		return true;
+			//qDebug() <<  p.name << p.time << p.chosen;
+
+	
 	}
 
-AU:
-//	smaz(p);
-	return false;
+	return true;
 }
