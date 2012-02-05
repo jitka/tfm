@@ -1,0 +1,54 @@
+{
+	"contacts":
+	[
+		{
+			 "firstName": "John", "lastName": "Smith",
+			 "age": 25,
+			 "address": 
+			 {"streetAddress": "21 2nd Street", "city": "New York", "state": "NY", "postalCode": 10021},
+			 "phoneNumber": 
+			 [
+				 {
+				   "type": "home",
+				   "number": "212 555-1234"
+				 },
+				 {
+				   "type": "fax",
+				   "number": "646 555-4567"
+				 }
+			 ]
+			 
+		 },
+		 {
+			 "firstName": "John",
+			 "lastName": "Doe",
+			 "age": 12,
+			 "address": 
+			 {
+				 "streetAddress": "22 1st Street",
+				 "city": "Los Angeles",
+				 "state": "LA",
+				 "postalCode": 12345
+			 },
+			 "phoneNumber": 
+			 [
+				 {
+				   "type": "home",
+				   "number": "123 456-7890"
+				 },
+				 {
+				   "type": "fax",
+				   "number": "098 765-4321"
+				 }
+			 ]
+		 }
+	 ],
+	 "pokusy" : {
+		"cislo" : -123,
+		"retezec" : "abcd",
+		"pravda" : true,
+		"lez" : false,
+		"null" : null,
+		"pole" : [ 1, { "jmeno" : "hodnota" }, [ 1, 2, 3 ], "retezec", true, false, null ]
+	 }
+ }

@@ -1,0 +1,6 @@
+ [ 12 , 2  , [], -0] 
+ { "jahoda:banan" : "pomeranc", "neco": true }
+
+null
+"unt.h\n"
+-12[34

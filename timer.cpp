@@ -15,7 +15,7 @@ Timer::Timer(QVector<part_massage> &parts2) {
 	this->parts = parts2;
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
-	vbox->setContentsMargins(30,100,30,100); //TODO proc je v pravo vetsi dira?
+	vbox->setContentsMargins(30,100,30,100); 
 	vbox->addStretch();
 	
 	QHBoxLayout *hbox = new QHBoxLayout();
