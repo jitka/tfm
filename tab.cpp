@@ -10,6 +10,8 @@
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QButtonGroup>
+#include <QSlider>
+#include <QGridLayout>
 #include <vector>
 #include "tab.h"
 #include "timer.h"
@@ -42,23 +44,29 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 
 		vbox->addLayout(hbox);
 
+		QGridLayout *grid = new QGridLayout();
+		
 		for (int i = 0; i < parts.size(); i++){
-			QHBoxLayout *hbox = new QHBoxLayout();
-			hbox->setContentsMargins(0,0,0,0);
-			
 			parts[i].checkBox = new QCheckBox (parts[i].name,this);
 			if ( parts[i].chosen )
 				parts[i].checkBox->setCheckState(Qt::Checked);
-			hbox->addWidget(parts[i].checkBox);
+			grid->addWidget(parts[i].checkBox,i,0);
 		
 			parts[i].spinBox = new QSpinBox(this);
 		        parts[i].spinBox->setMaximum(MAX_TIME);	
 		        parts[i].spinBox->setValue(parts[i].time);	
-			hbox->addWidget(parts[i].spinBox);
+			grid->addWidget(parts[i].spinBox,i,1);
 
-			vbox->addLayout(hbox);
+			parts[i].slider = new QSlider(this);
+			parts[i].slider->setOrientation(Qt::Horizontal);
+			grid->addWidget(parts[i].slider,i,2);
+		
+			parts[i].label = new QLabel(QString::number(parts[i].time)+" min", this);
+			grid->addWidget(parts[i].label,i,3);
 
 		}
+
+		vbox->addLayout(grid);
 
 		QPushButton *ok = new QPushButton("zacit masirovat", this);
 		connect(ok, SIGNAL(clicked()), this, SLOT(onOk()));
@@ -78,15 +86,12 @@ void Tab::onOk(){
 	QVector<pbInfo> v;
 	for (int i = 0; i < parts.size(); i++){
 		if (parts[i].checkBox->checkState() == Qt::Checked){
-			parts[i].final_chosen = true;
 			pbInfo pbi;
 			pbi.name = parts[i].name;
 			pbi.time = parts[i].spinBox->value();
 			v.append(pbi);
 
-		} else
-			parts[i].final_chosen = false;
-		parts[i].final_time = parts[i].spinBox->value();
+		} 
 
 	}
 	Timer *timer = new Timer(v);
