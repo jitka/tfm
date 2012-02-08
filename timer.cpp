@@ -44,9 +44,7 @@ Timer::Timer(QVector<pbInfo> &v){
 
 void Timer::keyPressEvent(QKeyEvent *event){
 	event = 0;
-
-	//TODO neco jako this->close();
-		          qApp->quit();
+	this->close();
 }
 
 void Timer::timerEvent(QTimerEvent *event){

@@ -35,9 +35,9 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 		hbox->addWidget(label);
 		int sum = 0;
 		for (int i = 0; i < parts.size(); i++)
-			sum += parts[i].time;
+			sum += parts[i]->origTime;
 
-		QSpinBox* totalTimeSpinBox = new QSpinBox(this);
+		totalTimeSpinBox = new QSpinBox(this);
 		totalTimeSpinBox->setValue(sum);	
 		totalTimeSpinBox->setSuffix(" min");	
 		hbox->addWidget(totalTimeSpinBox);
@@ -47,22 +47,22 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 		QGridLayout *grid = new QGridLayout();
 		
 		for (int i = 0; i < parts.size(); i++){
-			parts[i].checkBox = new QCheckBox (parts[i].name,this);
-			if ( parts[i].chosen )
-				parts[i].checkBox->setCheckState(Qt::Checked);
-			grid->addWidget(parts[i].checkBox,i,0);
-		
-			parts[i].spinBox = new QSpinBox(this);
-		        parts[i].spinBox->setMaximum(MAX_TIME);	
-		        parts[i].spinBox->setValue(parts[i].time);	
-			grid->addWidget(parts[i].spinBox,i,1);
+			parts[i]->position = i; 
+			parts[i]->parent = this; 
 
-			parts[i].slider = new QSlider(this);
-			parts[i].slider->setOrientation(Qt::Horizontal);
-			grid->addWidget(parts[i].slider,i,2);
+			parts[i]->checkBox = new QCheckBox (parts[i]->name,this);
+			if ( parts[i]->chosen )
+				parts[i]->checkBox->setCheckState(Qt::Checked);
+			grid->addWidget(parts[i]->checkBox,i,0);
 		
-			parts[i].label = new QLabel(QString::number(parts[i].time)+" min", this);
-			grid->addWidget(parts[i].label,i,3);
+			parts[i]->slider = new QSlider(this);
+			parts[i]->slider->setOrientation(Qt::Horizontal);
+			grid->addWidget(parts[i]->slider,i,1);
+			connect(parts[i]->slider, SIGNAL(valueChanged(int)), parts[i], SLOT(onChange(int)));
+
+		
+			parts[i]->label = new QLabel(QString::number(parts[i]->origTime)+" min", this);
+			grid->addWidget(parts[i]->label,i,2);
 
 		}
 
@@ -82,19 +82,28 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 
 }
 
+void PartMassage::onChange(int newValue){
+	parent->changeTimeTable(position, newValue);	
+}
+
+void Tab::changeTimeTable(int part, int newValue){
+	qDebug() << "pohnuto" << part << newValue;
+}
+
 void Tab::onOk(){
 	QVector<pbInfo> v;
 	for (int i = 0; i < parts.size(); i++){
-		if (parts[i].checkBox->checkState() == Qt::Checked){
+		if (parts[i]->checkBox->checkState() == Qt::Checked){
 			pbInfo pbi;
-			pbi.name = parts[i].name;
-			pbi.time = parts[i].spinBox->value();
+			pbi.name = parts[i]->name;
+			pbi.time = parts[i]->time;
 			v.append(pbi);
 
 		} 
 
 	}
-	Timer *timer = new Timer(v);
+//	Timer *timer = new Timer(v);
+	new Timer(v);
 }
 
 int Tab::parse(QString path){
@@ -115,14 +124,14 @@ int Tab::parse(QString path){
 				return false;
 
 			QMap<QString,Json> m = *v.value.map;
-			part_massage p;
+			PartMassage* p = new PartMassage();
 
 			//name
 			if ( m.find("name") == m.end())
 				return false;
 			if ( m["name"].type != STRING )
 				return false;
-			p.name = *m["name"].value.string;
+			p->name = *m["name"].value.string;
 
 			//time
 			if ( m.find("time") == m.end())
@@ -132,17 +141,18 @@ int Tab::parse(QString path){
 			int time = m["time"].value.number;
 			if ( time <=0 || time >= MAX_TIME)
 				return false;
-			p.time = time;
+			p->time = time;
+			p->origTime = time;
 
 			//chosen
 			if ( m.find("default") == m.end())
 				return false;
 			switch ( m["default"].type ){
 			case MY_TRUE:
-				p.chosen = true;
+				p->chosen = true;
 				break;
 			case MY_FALSE:
-				p.chosen = false;
+				p->chosen = false;
 				break;
 			default:
 				return false;
