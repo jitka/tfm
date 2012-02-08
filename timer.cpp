@@ -44,7 +44,7 @@ void Timer::keyPressEvent(QKeyEvent *event){
 }
 
 void Timer::timerEvent(QTimerEvent *event){
-
+	//posouva progressBar
 	if (progressBars[current_part]->value() >= progressBars[current_part]->maximum() ){
 		current_part++;
 		if (current_part >= progressBars.size()){

@@ -1,6 +1,7 @@
 #include "json.h"
 
 void skipWhiteSpace(QString &in){
+	//ze vstupu ureze vse co neni mezera
 	while ( !in.isEmpty() && in[0].isSpace())
 		in.remove(0,1);
 }

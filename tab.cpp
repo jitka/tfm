@@ -85,11 +85,13 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 }
 
 void PartMassage::onChange(int newValue){
+	//slouzi pouze k propakovani signalu dal
 	parent->sliderChange(position, newValue);
 }
 
 
 void PartMassage::onCheck(int state){
+	//slouzi pouze k propakovani signalu dal
 	if (state == Qt::Checked)
 		chosen = true;
 	if (state == Qt::Unchecked)
@@ -98,6 +100,10 @@ void PartMassage::onCheck(int state){
 }
 
 void Tab::sliderChange(int part, int newValue){
+	//Zmenila se priorita nejake casti mazase. Cas ktery se na ni ztrati
+	//nebo ziska se rozdeli mezi ostatni vybrane casti tak aby vetsi casti 
+	//ziskaly/ztratily vic.
+	//Celkova doba masaze zustava na sekundy presna.
 	if (parts[part]->time == newValue)
 	 	return; //nic se nezmenilo
 	if (!parts[part]->chosen)
@@ -134,6 +140,7 @@ void Tab::sliderChange(int part, int newValue){
 }
 
 void Tab::onOk(){
+	//Zacina se masirovat, vytvorisi se samostatne okno s hodinami.
 	QVector<pbInfo> v;
 	for (int i = 0; i < parts.size(); i++){
 		if (parts[i]->checkBox->checkState() == Qt::Checked){
@@ -149,6 +156,8 @@ void Tab::onOk(){
 }
 
 void Tab::onSumChange(int newValue){
+	//Zvetsila/zmensila se celkova doba masaze cas se pomerove rozdeli
+	//mezi vsechny ostani vybrane casi.
 	int free = (newValue - sum)*60;
 	int used = 0;
 	for (int i = 0; i < parts.size(); i++){
@@ -179,6 +188,7 @@ void Tab::onSumChange(int newValue){
 }
 
 void Tab::changeTimeTable(){
+	//Nove vypocitane casy se vykresli.
 	for (int i = 0; i < parts.size(); i++){
 		if (!parts[i]->chosen)
 			continue;
@@ -195,6 +205,7 @@ void Tab::changeTimeTable(){
 }
 
 int Tab::parse(QString path){
+	//Parsuje se konfigurat. Vrati se jestli se povedlo.
 
 	QFile file(path);
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
