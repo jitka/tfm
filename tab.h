@@ -12,11 +12,10 @@ class Tab;
 class PartMassage: public QObject{
 	Q_OBJECT
 	public:
-		//TODO toto bude trida a bude chytat signal valueChanged() slideru
 		int position; 
 		QString name;
-		int origTime;
-		int time;
+		int origTime; //v minutach
+		int time;     //v sekundach
 		bool chosen;
 		Tab* parent;
 
@@ -35,15 +34,19 @@ class Tab: public QWidget{
 	public:
 
 		Tab(QWidget* parent, QString name, QString path);
-		void changeTimeTable(int part, int newValue);
+		void sliderChange(int part, int newValue);
 	
 	private slots:
 		void onOk();
+		void onSumChange(int newValue);
 
 	private:
 		QVector<PartMassage*> parts;
-		int parse(QString name);
 		QSpinBox* totalTimeSpinBox;
+		int sum;
+		
+		int parse(QString name);
+		void changeTimeTable();
 
 
 };
