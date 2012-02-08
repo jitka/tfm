@@ -1,18 +1,10 @@
-#include <QPushButton>
 #include <QFile>
-#include <fstream>
-#include <iostream>
-#include <QString>
-#include <QMessageBox>
-#include <QLabel>
 #include <QTextStream>
+#include <QString>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QDebug>
-#include <QButtonGroup>
-#include <QSlider>
 #include <QGridLayout>
-#include <vector>
+#include <QPushButton>
 #include "tab.h"
 #include "timer.h"
 #include "json.h"
@@ -34,8 +26,10 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 		QLabel* label = new QLabel("Celkovy cas:", this);
 		hbox->addWidget(label);
 		sum = 0;
-		for (int i = 0; i < parts.size(); i++)
-			sum += parts[i]->origTime;
+		for (int i = 0; i < parts.size(); i++){
+			if (parts[i]->chosen)
+				sum += parts[i]->origTime;
+		}
 
 		totalTimeSpinBox = new QSpinBox(this);
 		totalTimeSpinBox->setValue(sum);	
@@ -55,6 +49,7 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 			parts[i]->checkBox = new QCheckBox (parts[i]->name,this);
 			if ( parts[i]->chosen )
 				parts[i]->checkBox->setCheckState(Qt::Checked);
+			connect(parts[i]->checkBox, SIGNAL(stateChanged(int)), parts[i], SLOT(onCheck(int)));
 			grid->addWidget(parts[i]->checkBox,i,0);
 		
 			parts[i]->slider = new QSlider(this);
@@ -62,6 +57,8 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 			parts[i]->slider->setMinimum(0);
 			parts[i]->slider->setSingleStep(1);
 			parts[i]->slider->setPageStep(60);
+			parts[i]->slider->setMaximum(sum*60);
+			parts[i]->slider->setSliderPosition(parts[i]->time);
 			connect(parts[i]->slider, SIGNAL(valueChanged(int)), parts[i], SLOT(onChange(int)));
 			grid->addWidget(parts[i]->slider,i,1);
 
@@ -69,7 +66,6 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 			grid->addWidget(parts[i]->label,i,2);
 
 		}
-		changeTimeTable();
 
 		vbox->addLayout(grid);
 
@@ -80,8 +76,9 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 	} else {
 		//nepovedlo se nacit konfigurak
 		setToolTip(name);
-		//QLabel *label = new QLabel("Nepodarilo se naparsovat konfigurak.", this);
-		new QLabel("Nepodarilo se naparsovat konfigurak.", this);
+		QVBoxLayout* vbox = new QVBoxLayout(this);
+		QLabel *label = new QLabel("Nepodarilo se naparsovat konfigurak.", this);
+		vbox->addWidget(label);
 	}
 
 
@@ -91,13 +88,24 @@ void PartMassage::onChange(int newValue){
 	parent->sliderChange(position, newValue);
 }
 
+
+void PartMassage::onCheck(int state){
+	if (state == Qt::Checked)
+		chosen = true;
+	if (state == Qt::Unchecked)
+		chosen = false;
+	parent->sliderChange(position,time);
+}
+
 void Tab::sliderChange(int part, int newValue){
 	if (parts[part]->time == newValue)
 	 	return; //nic se nezmenilo
+	if (!parts[part]->chosen)
+	 	return; //nezajima me to
 	int free = parts[part]->time - newValue;
 	int used = 0;
 	for (int i = 0; i < parts.size(); i++){
-		if (i == part)
+		if (i == part || !parts[i]->chosen)
 			continue;
 		used += free*parts[i]->time/(sum*60);
 		parts[i]->time += free*parts[i]->time/(sum*60);
@@ -105,7 +113,7 @@ void Tab::sliderChange(int part, int newValue){
 	int rest = free-used;
 	if (rest > 0)
 		for (int i = 0; i < rest; i++){
-			if (i == part){
+			if (i == part || !parts[i % parts.size()]->chosen){
 				rest++;
 				continue;
 			}
@@ -113,10 +121,11 @@ void Tab::sliderChange(int part, int newValue){
 		}
 	if (rest < 0)
 		for (int i = 0; i < -rest; i++){
-			if (i == part){
+			if (i == part || !parts[i % parts.size()]->chosen){
 				rest--;
 				continue;
 			}
+				continue;
 			parts[i % parts.size()]->time--;
 		}
 	parts[part]->time = newValue;
@@ -136,7 +145,6 @@ void Tab::onOk(){
 		} 
 
 	}
-//	Timer *timer = new Timer(v);
 	new Timer(v);
 }
 
@@ -144,24 +152,43 @@ void Tab::onSumChange(int newValue){
 	int free = (newValue - sum)*60;
 	int used = 0;
 	for (int i = 0; i < parts.size(); i++){
+		if (!parts[i]->chosen)
+			continue;
 		used += free*parts[i]->time/(sum*60);
 		parts[i]->time += free*parts[i]->time/(sum*60);
 	}
 	int rest = free-used;
 	if (rest > 0)
-		for (int i = 0; i < rest; i++)
+		for (int i = 0; i < rest; i++){
+			if (!parts[i % parts.size()]->chosen){
+				rest++;
+				continue;
+			}
 			parts[i % parts.size()]->time++;
+		}
 	if (rest < 0)
-		for (int i = 0; i < -rest; i++)
+		for (int i = 0; i < -rest; i++){
+			if (!parts[i % parts.size()]->chosen){
+				rest--;
+				continue;
+			}
 			parts[i % parts.size()]->time--;
+		}
 	sum = newValue;
 	changeTimeTable();
 }
 
 void Tab::changeTimeTable(){
 	for (int i = 0; i < parts.size(); i++){
-		parts[i]->slider->setMaximum(sum*60);
-		parts[i]->slider->setSliderPosition(parts[i]->time);
+		if (!parts[i]->chosen)
+			continue;
+		if (parts[i]->slider->maximum() < sum*60){
+			parts[i]->slider->setMaximum(sum*60);
+			parts[i]->slider->setSliderPosition(parts[i]->time);
+		} else {
+			parts[i]->slider->setSliderPosition(parts[i]->time);
+			parts[i]->slider->setMaximum(sum*60);
+		}
 		parts[i]->label->setText(QString::number((parts[i]->time+30)/60)+" min");
 	}
 
@@ -206,9 +233,9 @@ int Tab::parse(QString path){
 			p->origTime = time;
 
 			//chosen
-			if ( m.find("default") == m.end())
+			if ( m.find("chosen") == m.end())
 				return false;
-			switch ( m["default"].type ){
+			switch ( m["chosen"].type ){
 			case MY_TRUE:
 				p->chosen = true;
 				break;

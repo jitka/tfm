@@ -4,7 +4,6 @@
 #include <QString>
 #include <QMap>
 #include <QVector>
-#include <QTextStream>
 
 typedef enum {INT,STRING,MAP,VECTOR,MY_TRUE,MY_FALSE,MY_NULL,ERROR} type_t;
 
@@ -22,7 +21,7 @@ class Json {
 		Json(const Json &json);
 		~Json();
 
-		void write(QTextStream &out) const;
+//		void write(QTextStream &out) const;
 
 };
 

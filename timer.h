@@ -1,8 +1,8 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 #include <QWidget>
-#include <QProgressBar>
 #include <QTimer>
+#include <QProgressBar>
 
 struct pbInfo{
 	QString name;
@@ -19,6 +19,7 @@ class Timer: public QWidget{
 	private:
 		QVector<QProgressBar*> progressBars;
 		int current_part;
+		int timerId;
 };
 
 

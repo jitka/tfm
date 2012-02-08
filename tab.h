@@ -1,7 +1,7 @@
 #ifndef TAB_H
 #define TAB_H
+
 #include <QWidget>
-#include <QVector>
 #include <QCheckBox>
 #include <QSpinBox>
 #include <QSlider>
@@ -26,6 +26,7 @@ class PartMassage: public QObject{
 	
 	private slots:
 		void onChange(int newValue);
+		void onCheck(int state);
 };
 
 

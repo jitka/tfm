@@ -1,0 +1,33 @@
+[{
+	"name": "sije",
+	"time": 15,
+	"chosen": true
+},{
+	"name": "zada",
+	"time": 30,
+	"chosen": true
+},{
+	"name": "hyzde",
+	"time": 10,
+	"chosen": true
+},{
+	"name": "nohy zezadu",
+	"time": 20,
+	"chosen": true
+},{
+	"name": "nohy zepredu",
+	"time": 15,
+	"chosen": true
+},{
+	"name": "bricho",
+	"time": 4,
+	"chosen": true
+},{
+	"name": "hrudnik",
+	"time": 10,
+	"chosen": true
+},{
+	"name": "ruce",
+	"time": 15,
+	"chosen": true
+}]

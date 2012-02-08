@@ -1,4 +1,3 @@
-#include <iostream>
 #include <QIcon>
 #include <QVBoxLayout>
 #include <QDir>

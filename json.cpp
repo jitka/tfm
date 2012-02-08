@@ -1,5 +1,3 @@
-#include <QChar>
-#include <QDebug>
 #include "json.h"
 
 void skipWhiteSpace(QString &in){
@@ -305,7 +303,7 @@ Json::~Json(){
 
 ////////////////////////////////////////////////////////////////////
 
-
+/*
 void writeString(QTextStream &out, const QString &str){
 //	qDebug() << str;
 	out << "\"";
@@ -385,4 +383,4 @@ void Json::write(QTextStream &out) const{
 		break;
 	}
 }
-
+*/

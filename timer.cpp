@@ -1,12 +1,8 @@
-#include <QApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QKeyEvent>
-#include <QVector>
-#include <QDebug>
 #include "timer.h"
-#define TIME 10 //zrychlene
-//#define TIME 1000 //realne
+//#define TIME 10 //zrychlene
+#define TIME 1000 //realne
 
 
 
@@ -27,7 +23,7 @@ Timer::Timer(QVector<pbInfo> &v){
 	for (int i = 0; i < v.size(); i++){
 		QProgressBar *pb = new QProgressBar(this);
 		pb->setMinimum(0);
-		pb->setMaximum(v[i].time*60);
+		pb->setMaximum(v[i].time);
 		pb->setValue(0); //je potreba aby byl videt text
 		pb->setFormat(v[i].name);
 		pb->setTextVisible(true);
@@ -38,7 +34,7 @@ Timer::Timer(QVector<pbInfo> &v){
 	
 	current_part=0;
 	show();
-	startTimer(TIME);
+	timerId = startTimer(TIME);
 
 }
 
@@ -48,13 +44,13 @@ void Timer::keyPressEvent(QKeyEvent *event){
 }
 
 void Timer::timerEvent(QTimerEvent *event){
-	if (current_part >= progressBars.size())
-		return;
 
 	if (progressBars[current_part]->value() >= progressBars[current_part]->maximum() ){
 		current_part++;
-		if (current_part >= progressBars.size())
+		if (current_part >= progressBars.size()){
+			killTimer(timerId);
 			return;
+		}
 	}
 	
 	QProgressBar* pb = progressBars[current_part];

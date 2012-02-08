@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'tab.h'
 **
-** Created: Wed Feb 8 10:53:26 2012
+** Created: Wed Feb 8 20:49:34 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_PartMassage[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -32,12 +32,14 @@ static const uint qt_meta_data_PartMassage[] = {
 
  // slots: signature, parameters, type, tag, flags
       22,   13,   12,   12, 0x08,
+      42,   36,   12,   12, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_PartMassage[] = {
     "PartMassage\0\0newValue\0onChange(int)\0"
+    "state\0onCheck(int)\0"
 };
 
 void PartMassage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -47,6 +49,7 @@ void PartMassage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         PartMassage *_t = static_cast<PartMassage *>(_o);
         switch (_id) {
         case 0: _t->onChange((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 1: _t->onCheck((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -84,9 +87,9 @@ int PartMassage::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }

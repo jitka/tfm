@@ -1,0 +1,25 @@
+[{
+	"name": "uvodni treni",
+	"time": 1,
+	"chosen": true
+},{
+	"name": "ploska",
+	"time": 2,
+	"chosen": true
+},{
+	"name": "achylovka",
+	"time": 1,
+	"chosen": true
+},{
+	"name": "lytko",
+	"time": 2,
+	"chosen": true
+},{
+	"name": "stehno",
+	"time": 3,
+	"chosen": true
+},{
+	"name": "zaverecne treni",
+	"time": 1,
+	"chosen": true
+}]
