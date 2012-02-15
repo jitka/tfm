@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'tab.h'
 **
-** Created: Wed Feb 8 20:49:34 2012
+** Created: Wed Feb 15 23:43:03 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -99,7 +99,7 @@ static const uint qt_meta_data_Tab[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -108,13 +108,15 @@ static const uint qt_meta_data_Tab[] = {
 
  // slots: signature, parameters, type, tag, flags
        5,    4,    4,    4, 0x08,
-      21,   12,    4,    4, 0x08,
+      12,    4,    4,    4, 0x08,
+      31,   22,    4,    4, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_Tab[] = {
-    "Tab\0\0onOk()\0newValue\0onSumChange(int)\0"
+    "Tab\0\0onOk()\0onReset()\0newValue\0"
+    "onSumChange(int)\0"
 };
 
 void Tab::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -124,7 +126,8 @@ void Tab::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **
         Tab *_t = static_cast<Tab *>(_o);
         switch (_id) {
         case 0: _t->onOk(); break;
-        case 1: _t->onSumChange((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 1: _t->onReset(); break;
+        case 2: _t->onSumChange((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -162,9 +165,9 @@ int Tab::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 3;
     }
     return _id;
 }

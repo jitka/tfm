@@ -17,12 +17,14 @@ class PartMassage: public QObject{
 		int origTime; //v minutach
 		int time;     //v sekundach
 		bool chosen;
+		bool origChosen;
 		Tab* parent;
 
 		QCheckBox* checkBox;
 		QSpinBox* spinBox;
 		QSlider* slider;
-		QLabel* label;
+		QLabel* min;
+		QLabel* sec;
 	
 	private slots:
 		void onChange(int newValue);
@@ -39,12 +41,14 @@ class Tab: public QWidget{
 	
 	private slots:
 		void onOk();
+		void onReset();
 		void onSumChange(int newValue);
 
 	private:
 		QVector<PartMassage*> parts;
 		QSpinBox* totalTimeSpinBox;
 		int sum;
+		int origSum;
 		
 		int parse(QString name);
 		void changeTimeTable();
