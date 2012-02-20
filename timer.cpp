@@ -1,5 +1,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QDebug>
+#include <QFontInfo>
 #include "timer.h"
 //#define TIME 10 //zrychlene
 #define TIME 1000 //realne
@@ -28,6 +30,11 @@ Timer::Timer(QVector<pbInfo> &v){
 		pb->setFormat(v[i].name);
 		pb->setTextVisible(true);
 		pb->setContentsMargins(0,0,0,0);
+		
+		QFont font;
+		font.setPointSize(2*pb->fontInfo().pointSize());
+		pb->setFont(font);
+
 		hbox->addWidget(pb,v[i].time);
 		progressBars.append(pb);
 	}

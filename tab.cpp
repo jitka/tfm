@@ -75,7 +75,7 @@ Tab::Tab(QWidget *parent, QString name, QString path):QWidget(parent){
 			parts[i]->sec = new QLabel("0", this);
 			grid->addWidget(parts[i]->sec,i,4);
 			
-			QLabel* sec = new QLabel("sek", this);
+			QLabel* sec = new QLabel("s", this);
 			grid->addWidget(sec,i,5);
 		}
 
