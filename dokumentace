@@ -1,0 +1,17 @@
+Program je napsán v qt a slouží jako odměřovat času pro maséry. Práce s ním se
+dá rozdělit do dvou částí.  Nejdříve se navolí co a jak dlouho se bude
+masírovat a po té ukazuje v jaké fázi by se masáž měla nalézat. 
+
+Okno ukazovací částí najdete v timer.cpp spolu s funkcí starající se o posouvání
+ukazatele. 
+
+Okno vybýrací části obsahuje taby, kde každý tab odpovídá jednomu kofiguráku
+nalézajícímu se v .tfm. Samotný objek tohoto okna je ve window.cpp, ale tam se
+jen vytvoří tak pro každý konfigurák a ošetří chyby. Parsování a vytvoření
+vybýrátka je v tab.cpp stejně jako funkce zajišťující správné rozdělení času
+mezi masírované části.
+
+Formát konfiguráku:
+Celé je to speciální případ JSONu (http://www.json.org/json-cz.html). Je
+to pole masírovaných částí. Kde každá část je map obsahující název, doporučený
+čas masáže v minutách a doporučené zařazení do mazáže. 
